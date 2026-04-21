@@ -43,7 +43,11 @@ public class SearchDemo {
         System.out.println("\nSearch: " + q);
         List<SearchResult> results = search.searchRestaurants(q);
         for (SearchResult r : results) {
-            System.out.printf("- %s (id=%s) matched by %s%n", r.restaurantName(), r.restaurantId(), r.matchedBy());
+            if (r.matchedValue() != null && !r.matchedValue().isBlank()) {
+                System.out.printf("- %s (id=%s) matched by %s -> %s%n", r.restaurantName(), r.restaurantId(), r.matchedBy(), r.matchedValue());
+            } else {
+                System.out.printf("- %s (id=%s) matched by %s%n", r.restaurantName(), r.restaurantId(), r.matchedBy());
+            }
         }
         if (results.isEmpty()) {
             System.out.println("No results");

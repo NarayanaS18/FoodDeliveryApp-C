@@ -29,23 +29,27 @@ public class SearchServiceImpl implements SearchService {
 
         for (Restaurant r : repository.findAll()) {
             String name = r.name() == null ? "" : r.name();
-            if (name.toLowerCase().contains(q)) {
-                results.add(new SearchResult(r.restaurantId(), name, "name"));
-                continue;
-            }
 
-            boolean matchedItem = false;
+            // collect all menu items that match the query
+            List<String> matchingItems = new ArrayList<>();
             for (MenuItem item : r.menu().values()) {
                 String itemName = item.name() == null ? "" : item.name();
                 if (itemName.toLowerCase().contains(q)) {
-                    results.add(new SearchResult(r.restaurantId(), name, "item"));
-                    matchedItem = true;
-                    break;
+                    matchingItems.add(itemName);
                 }
             }
 
-            if (matchedItem) {
+            String matchedItemsValue = matchingItems.isEmpty() ? null : String.join(", ", matchingItems);
+
+            // if restaurant name matches, still include matching menu items (if any)
+            if (name.toLowerCase().contains(q)) {
+                results.add(new SearchResult(r.restaurantId(), name, "name", matchedItemsValue));
                 continue;
+            }
+
+            // if name doesn't match but some menu items matched, report as item match
+            if (matchedItemsValue != null) {
+                results.add(new SearchResult(r.restaurantId(), name, "item", matchedItemsValue));
             }
         }
 
